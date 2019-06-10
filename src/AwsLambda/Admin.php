@@ -23,33 +23,6 @@ class Admin extends Base {
         \Timber::render('templates/page.html', $ctx);    
     }
 
-    /*
-    function show_options_page(){
-        // Settings
-
-        if ( !current_user_can( 'manage_options' ) )  {
-            wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-        }
-
-        $ctx = \Timber::get_context();
-
-
-        \Timber::render('templates/page.html', $ctx);    
-    }
-
-    function show_management_page(){
-        // Managemnet
-
-        if ( !current_user_can( 'manage_options' ) )  {
-            wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-        }
-
-        $ctx = \Timber::get_context();
-
-        \Timber::render('templates/page.html', $ctx);    
-    }
-    */
-
     public function action_admin_menu (){
         // https://codex.wordpress.org/Function_Reference/add_options_page
         add_options_page(
@@ -58,7 +31,6 @@ class Admin extends Base {
             'manage_options',           // Capablities
             "{$this->Name}-options",             // Slug
             array($this, 'show_page'));
-            //array($this, 'show_options_page'));
 
         // https://codex.wordpress.org/Function_Reference/add_management_page
         add_management_page(
@@ -67,11 +39,10 @@ class Admin extends Base {
             'manage_options',           // Capablities
             "{$this->Name}-management",             // Slug
             array($this, 'show_page'));
-            //array($this, 'show_management_page'));
-
     }
 
     public function get_page_id() {
+        // https://codex.wordpress.org/Function_Reference/get_current_screen
         $id = get_current_screen()->id;
         preg_match('/[^-]+$/', $id, $matches);
         return $matches[0];

@@ -48,11 +48,26 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
 
+### Dependencies
+
+Timber:
+
+* [Timber – WordPress plugin - WordPress.org](https://wordpress.org/plugins/timber-library/)
+
+Quasar:
+
+* [Quasar Framework](https://quasar.dev/)
+
+AWS SDK for Javascript:
+
+* [Class: AWS.Lambda — AWS SDK for JavaScript](https://docs.aws.amazon.com/ja_jp/AWSJavaScriptSDK/latest/AWS/Lambda.html)
+* [Class: AWS.CloudWatchLogs — AWS SDK for JavaScript](https://docs.aws.amazon.com/ja_jp/AWSJavaScriptSDK/latest/AWS/CloudWatchLogs.html)
+
 ## Frequently Asked Questions
 
     TODO:
 
-## Screenshots 
+## Screenshots
 
 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
 the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets

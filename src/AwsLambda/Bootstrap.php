@@ -40,7 +40,6 @@ class Bootstrap {
     }
 
     public function getInstance() {
-        // $this->plugin_app = App::get_instance();
         $this->plugin_app = new App();
     }
 
