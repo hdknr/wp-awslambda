@@ -1,0 +1,11 @@
+{
+    "name": "hdknr/wp-awslambda",
+    "description": "Aws Lambda",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Hdknr\\AwsLambda\\": "src/AwsLambda/"
+        }
+    }
+}

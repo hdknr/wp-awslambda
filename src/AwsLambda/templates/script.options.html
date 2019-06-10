@@ -1,0 +1,90 @@
+{% extends 'templates/base_script.html' %}
+
+{% block script_template %}
+
+<script type="text/x-template" id="script_component">
+	<q-page padding>
+    <h3>AWS Lambda Settings</h3>
+
+      <div class="q-pa-md">
+
+         <form method="post" class="q-gutter-y-md column" v-if="pageData">
+
+         <q-input bottom-slots name="aws_accesskey_id" v-model="pageData.aws_accesskey_id"
+         	label="AWS ACCESSKEY ID" counter
+         	:dense="dense">
+
+         	<template v-slot:before>
+         		<q-icon name="lock_open" />
+         	</template>
+
+         	<template v-slot:append>
+         		<q-icon v-if="pageData.aws_accesskey_id !== ''" name="close" @click="pageData.aws_accesskey_id = ''" class="cursor-pointer" />
+         	</template>
+
+         	<template v-slot:hint>
+             AWS IAM で登録
+         	</template>
+         </q-input>
+
+
+         <q-input bottom-slots name="aws_secret_access_key" v-model="pageData.aws_secret_access_key"
+         	label="AWS SECRET ACCESS KEY "
+         	counter :dense="dense">
+
+         	<template v-slot:before>
+         		<q-icon name="vpn_key" />
+         	</template>
+
+         	<template v-slot:append>
+         		<q-icon v-if="pageData.aws_secret_access_key !== ''" name="close" @click="pageData.aws_secret_access_key = ''"
+         			class="cursor-pointer" />
+         	</template>
+
+         	<template v-slot:hint>
+             AWS IAM で登録
+         	</template>
+         </q-input>
+
+<q-input bottom-slots name="aws_region" v-model="pageData.aws_region" label="AWS REGION" counter :dense="dense">
+
+	<template v-slot:before>
+		<q-icon name="language" />
+	</template>
+
+	<template v-slot:append>
+		<q-icon v-if="pageData.aws_region !== ''" name="close" @click="pageData.aws_region = ''" class="cursor-pointer" />
+	</template>
+
+	<template v-slot:hint>
+    AWS リージョン名
+	</template>
+</q-input>
+
+        <div class="text-right">
+          <q-btn label="Update" type="submit" color="primary" icon="save" />
+        </div>
+
+      </form>
+    </div>
+  </q-page>
+</script>
+{% endblock %}
+
+{% block script_component %}
+<script>
+	Vue.component('script_component', {
+		template: '#script_component',
+		delimiters: ['{[{', '}]}'],
+    mixins: [mixin],
+		computed: {},
+		data: function () {
+			return {
+				ph: '',
+				dense: true
+			}
+		},
+	})
+
+</script>
+{% endblock %}

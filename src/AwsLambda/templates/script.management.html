@@ -1,0 +1,167 @@
+{% extends 'templates/base_script.html' %}
+
+{% block script_template %}
+<script type="text/x-template" id="script_component">
+
+<q-page padding>
+	<h3>AWS Lambda Call</h3>
+
+	<q-form @submit="callLambda" class="q-gutter-y-md column">
+
+		<q-input bottom-slots v-model="function_name" label="Function Name" counter :dense="dense">
+
+			<template v-slot:before>
+				<q-icon name="build" />
+			</template>
+
+			<template v-slot:append>
+				<q-icon v-if="function_name !== ''" name="close" @click="function_name = ''" class="cursor-pointer" />
+			</template>
+		</q-input>
+
+		<div class="text-right">
+			<q-btn label="Execute" type="submit" color="primary" icon="splay_circle_filled" v-if="function_name" />
+		</div>
+	</q-form>
+
+	<div class="q-pa-md" v-if="cwlogs.result">
+		<h4>AWS Lambda Result</h4>
+
+		<div class="text-right">
+			<q-btn color="white" text-color="black" label="Update" @click="getlog()" />
+		</div>
+
+		<q-list bordered>
+			<q-item clickable v-ripple v-for="result in cwlogs.result" class="row">
+
+				<q-item-section class="col-2">
+					<span v-html="result.instance"></span>
+				</q-item-section>
+
+				<q-item-section class="col-10">
+					<ul>
+						<li v-for="command in result.commands">
+							<span v-html="command"></span>
+						</li>
+					</ul>
+					<hr>
+					<ul v-if="result.data">
+						<li v-for="event in result.data.events">
+							<span v-html="event.message"></span>
+						</li>
+					</ul>
+				</q-item-section>
+
+			</q-item>
+		</q-list>
+	</div>
+
+</q-page>
+</script>
+
+{% endblock %}
+
+{% block script_component %}
+<script>
+Vue.component("script_component", {
+  template: "#script_component",
+  delimiters: ["{[{", "}]}"],
+  mixins: [mixin],
+  created: function() {
+    const data = this.pageData;
+    AWS.config.update({
+      accessKeyId: data.aws_accesskey_id,
+      secretAccessKey: data.aws_secret_access_key,
+      region: data.aws_region
+    });
+    this.lambda.api = new AWS.Lambda();
+    this.cwlogs.api = new AWS.CloudWatchLogs();
+  },
+  computed: {
+    command: function() {
+      return this.lambda.result.Payload
+        ? this.lambda.result.Payload.Command
+        : null;
+    },
+    instances: function() {
+      return this.command ? this.command.InstanceIds : [];
+    },
+    cwconfig: function() {
+      return this.command ? this.command.CloudWatchOutputConfig : null;
+    }
+  },
+  data: function() {
+    return {
+      function_name: "",
+      lambda: {
+        api: null,
+        result: {}
+      },
+      cwlogs: {
+        api: null,
+        result: {}
+      },
+      message: "hello",
+      ph: "",
+      dense: true
+    };
+  },
+  methods: {
+    callLambda: function() {
+      let vm = this;
+      if (this.function_name) {
+        const params = {
+          FunctionName: vm.function_name,
+          InvocationType: "RequestResponse",
+          ClientContext: null,   // base64 string
+          Payload: '{}'          // JSON
+        };
+
+        // https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html#Lambda.Client.invoke
+        this.lambda.api.invoke(params, function(err, data) {
+          if (err) {
+            Vue.set(vm.lambda, "result", {});
+          } else {
+            Vue.set(vm.lambda.result, "Payload", JSON.parse(data.Payload));
+            Vue.set(vm.lambda.result, "LogResult", data.LogResult);
+          }
+        });
+      }
+    },
+    getLogParams: function(instanceId) {
+      if (this.cwconfig) {
+        const docname = this.command.DocumentName.replace("AWS-Run", "aws-run");
+        return {
+          logGroupName: this.cwconfig.CloudWatchLogGroupName,
+          logStreamName: `${
+            this.command.CommandId
+          }/${instanceId}/${docname}/stdout`
+        };
+      }
+      return null;
+    },
+    getlog: function() {
+      const vm = this;
+      if (vm.lambda.result) {
+        Vue.set(vm.cwlogs, "result", []);
+        _.forEach(vm.instances, function(instanceId) {
+          const params = vm.getLogParams(instanceId);
+          if (params) {
+            console.log(params);
+            vm.cwlogs.api.getLogEvents(params, function(err, data) {
+              const log = {
+                instance: instanceId,
+                err: err,
+                data: data,
+                commands: vm.command.Parameters.commands
+              };
+              vm.cwlogs.result.push(log);
+            });
+          }
+        });
+      }
+    }
+  }
+});
+</script>
+{% endblock %}
